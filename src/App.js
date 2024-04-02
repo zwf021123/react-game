@@ -6,6 +6,9 @@ import { useState } from "react";
 // 4.当有人获胜时，突出显示致使获胜的三个方块（当没有人获胜时，显示一条关于结果为平局的消息）。
 // 5.在“落子”的历史列表中以 (row, col) 格式显示每步的位置。
 
+const ROWLENGTH = 3;
+const COLLUMLENGTH = 3;
+
 export default function Game() {
   const [currentMove, setCurrentMove] = useState(0);
   const xisNext = currentMove % 2 === 0;
@@ -67,10 +70,20 @@ function Board({ squares, xisNext, onPlay }) {
     onPlay(newSquares);
   }
 
+  const content = [];
+  for (let i = 0; i < ROWLENGTH; i++) {
+    const row = [];
+    for (let j = 0; j < COLLUMLENGTH; j++) {
+      const index = i * ROWLENGTH + j;
+      row.push(<Square key={index} value={squares[index]} onSquareClick={() => handleClick(index)} />)
+    }
+    content.push(<div key={i} className="board-row">{row}</div>)
+  }
+
   return <>
     <div className="status">{status}</div>
-
-    <div className="board-row">
+    {content}
+    {/* <div className="board-row">
       <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
       <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
       <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
@@ -84,7 +97,7 @@ function Board({ squares, xisNext, onPlay }) {
       <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
       <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
       <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-    </div>
+    </div> */}
   </>;
 }
 
