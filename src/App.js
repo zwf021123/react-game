@@ -14,6 +14,7 @@ export default function Game() {
   const xisNext = currentMove % 2 === 0;
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const currentSquares = history[currentMove];
+  const isEnd = currentMove === ROWLENGTH * COLLUMLENGTH && !calculateWinner(currentSquares).winner;
 
   function handlePlay(newSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), newSquares];
@@ -46,7 +47,11 @@ export default function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board squares={currentSquares} xisNext={xisNext} onPlay={handlePlay} />
+        <Board
+          squares={currentSquares}
+          xisNext={xisNext}
+          isEnd={isEnd}
+          onPlay={handlePlay} />
       </div>
       <div className="game-info">
         <ol>{moves}</ol>
@@ -55,29 +60,34 @@ export default function Game() {
   );
 }
 
-function Square({ value, onSquareClick }) {
-  return <button className="square" onClick={onSquareClick}>{value}</button>;
+function Square({ value, onSquareClick, active }) {
+  return <button className={'square ' + (active && 'active')} onClick={onSquareClick}>{value}</button>;
 }
 
-function Board({ squares, xisNext, onPlay }) {
-  const winner = calculateWinner(squares);
-  const status = winner ? `Winner: ${winner}` : `Next player: ${xisNext ? "X" : "O"}`;
+function Board({ squares, xisNext, onPlay, isEnd }) {
+  const { winner, line } = calculateWinner(squares);
+  const status = winner ? `Winner: ${winner}` : isEnd ? '平局' : `Next player: ${xisNext ? 'X' : 'O'}`;
 
-  function handleClick(i) {
-    if (squares[i] || calculateWinner(squares)) return
-    const newSquares = squares.slice();
-    xisNext ? newSquares[i] = "X" : newSquares[i] = "O";
-    onPlay(newSquares);
-  }
-
+  // 生成棋盘
   const content = [];
   for (let i = 0; i < ROWLENGTH; i++) {
     const row = [];
     for (let j = 0; j < COLLUMLENGTH; j++) {
       const index = i * ROWLENGTH + j;
-      row.push(<Square key={index} value={squares[index]} onSquareClick={() => handleClick(index)} />)
+      row.push(<Square
+        key={index}
+        value={squares[index]}
+        active={line && line.includes(index)}
+        onSquareClick={() => handleClick(index)} />)
     }
     content.push(<div key={i} className="board-row">{row}</div>)
+  }
+
+  function handleClick(i) {
+    if (squares[i] || winner) return
+    const newSquares = squares.slice();
+    xisNext ? newSquares[i] = "X" : newSquares[i] = "O";
+    onPlay(newSquares);
   }
 
   return <>
@@ -119,8 +129,14 @@ function calculateWinner(squares) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       // 返回获胜者
-      return squares[a]
+      return {
+        winner: squares[a],
+        line: [a, b, c]
+      }
     }
   }
-  return null
+  return {
+    winner: null,
+    line: null
+  }
 }
