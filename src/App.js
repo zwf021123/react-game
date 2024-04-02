@@ -34,12 +34,21 @@ export default function Game() {
     } else {
       description = 'Go to game start';
     }
+    // 我需要根据当前square与上一个square的差异来确定落子的位置
+    const lastSquare = history[move - 1] || Array(9).fill(null);
+    let diffIndex = square.findIndex((item, index) => item !== lastSquare[index]);
+    if (diffIndex !== -1) {
+      const row = Math.floor(diffIndex / ROWLENGTH) + 1;
+      const col = diffIndex % ROWLENGTH + 1;
+      description += `(${row}, ${col})`;
+    }
     return (
       <li key={move}>
         {
           move === currentMove ?
-            <strong>{`You are at move #${currentMove}`}</strong>
-            : (<button onClick={() => jumpTo(move)}>{description}</button>
+            <strong>“You are at move  #{move}”</strong>
+            : (
+              <button onClick={() => jumpTo(move)}>{description}</button>
             )
         }
       </li>
