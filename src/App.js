@@ -11,6 +11,7 @@ const COLLUMLENGTH = 3;
 
 export default function Game() {
   const [currentMove, setCurrentMove] = useState(0);
+  const [isAsc, setIsAsc] = useState(true);
   const xisNext = currentMove % 2 === 0;
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const currentSquares = history[currentMove];
@@ -44,6 +45,11 @@ export default function Game() {
       </li>
     )
   })
+
+  if (!isAsc) {
+    moves.reverse();
+  }
+
   return (
     <div className="game">
       <div className="game-board">
@@ -54,6 +60,9 @@ export default function Game() {
           onPlay={handlePlay} />
       </div>
       <div className="game-info">
+        <button onClick={() => setIsAsc(!isAsc)}>
+          {isAsc ? '升序' : '降序'}
+        </button>
         <ol>{moves}</ol>
       </div>
     </div>
